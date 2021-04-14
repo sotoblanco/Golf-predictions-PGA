@@ -21,35 +21,24 @@ train_2021 <- train_2021 %>% group_by(year) %>% mutate(score = scale(score)) %>%
 
 train_2021 <- train_2021 %>% dplyr::select(-c(player_name:money, rd1:rd4rank))
 
-set.seed(100)
-TrainingIndex <- createDataPartition(train_2021$score, p = 0.8, list = FALSE)
-TrainingSet <- train_2021[TrainingIndex,]
-TestingSet <- train_2021[-TrainingIndex,]
-
 cl <- makePSOCKcluster(5)
 registerDoParallel(cl)
-fitControl <- trainControl(method = "cv",
-                           number = 10)
-Model_rf <- train(score~., data = TrainingSet,
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 10,
+                           repeats = 3)
+Model_rf <- train(score~., data = train_2021,
                   method = "rf",
                   na.action = na.omit,
                   preProcess = c("scale", "center"),
                   trControl = fitControl)
 
 
-Model.training_rf <-predict(Model_rf, TrainingSet) # Apply model to make prediction on Training set
-Model.testing_rf <-predict(Model_rf, TestingSet) # Apply model to make prediction on Testing set
-cor(TrainingSet$score, Model.training_rf)
-cor(TestingSet$score, Model.testing_rf)
+Model.training_rf <-predict(Model_rf, train_2021) # Apply model to make prediction on Training set
+cor(train_2021$score, Model.training_rf)
 par(mfrow=c(1,2))
-plot(TrainingSet$score,Model.training_rf, col = "blue")
-plot(TestingSet$score,Model.testing_rf, col = "blue")
+plot(train_2021$score,Model.training_rf, col = "blue")
+test_2021$pred <- predict(Model_rf, test_2021)
 # 0.98
 #0.40
-train_2021 <- read.csv("train_2021_RBC.csv")
-set.seed(100)
-TrainingIndex <- createDataPartition(train_2021$score, p = 0.8, list = FALSE)
-TrainingSet <- train_2021[TrainingIndex,]
-TestingSet <- train_2021[-TrainingIndex,]
-TestingSet$pred <- predict(Model_rf, TestingSet)
+write.csv(test_2021, "~/Courses/Upwork_Projects/Gareth/RBC/data/scores_RBC.csv", row.names = FALSE)
 
