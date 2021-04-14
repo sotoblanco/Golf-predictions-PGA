@@ -10,6 +10,7 @@ df_2021 <- clean_names(df_2021)
 df_2021[names(df)]
 df <- rbind(df_2021,df)
 
+# explore missing values
 sum(is.na(df))
 #19191
 naniar::gg_miss_var(df)
