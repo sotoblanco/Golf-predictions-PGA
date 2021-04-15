@@ -300,8 +300,8 @@ Xs_seq <- rev(seq_along(g3putt_avoid))
 g3putt_avoid <- as.matrix(df[g3putt_avoid]) %*% matrix(Xs_seq, ncol = 1) / sum(Xs_seq)
 df$g3putt_avoid <- g3putt_avoid
 
+# out the data
 df <- df %>% dplyr::select(player_name:location,sgtot:g3putt_avoid)
-
 write.csv(df, "~/Courses/Upwork_Projects/Gareth/RBC/data/data.csv", row.names = FALSE)
 
 test_2021 <- df %>% filter(year == 2021)
